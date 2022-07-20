@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'price_screen.dart';
+import 'price_screen_rx.dart';
 
 void main() {
   runApp(const MyApp());
