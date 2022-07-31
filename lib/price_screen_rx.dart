@@ -12,18 +12,8 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   CoinData coinData = CoinData();
-  List<ExchangeRate> rates = [];
-
-  @override
-  void initState() {
-    super.initState();
-    coinData.rates().listen((newRates) => setState(() => rates = newRates));
-  }
 
   void updateCurrency(String? currency) async {
-    setState(() => rates = cryptoList
-        .map((crypto) => ExchangeRate(crypto: crypto, currency: currency ?? defaultCurrency, rate: 0))
-        .toList());
     coinData.setSelectedCurrency(currency ?? defaultCurrency);
   }
 
@@ -60,11 +50,21 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: rates
-                    .map((r) => CryptoCard(rate: r))
-                    .toList()
+          StreamBuilder<List<ExchangeRate>>(
+            stream: coinData.rates(),
+            builder: (contest, snapshot) {
+              List<ExchangeRate> rates = snapshot.hasData
+                  ? snapshot.data!
+                  : cryptoList
+                      .map((crypto) => ExchangeRate(
+                          crypto: crypto,
+                          currency: coinData.selectedCurrency(),
+                          rate: 0))
+                      .toList();
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: rates.map((r) => CryptoCard(rate: r)).toList());
+            },
           ),
           Container(
             height: 150.0,
